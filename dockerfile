@@ -1,10 +1,11 @@
 FROM python:3.10.2-alpine3.15
 
+
 ENV PYTHONUNBUFFERED 1
 
 RUN apk --update --no-cache add bash libffi-dev build-base \
     && rm -rf /var/cache/apk/*
 
-RUN pip install pylint twine Sphinx sphinx_rtd_theme --no-cache-dir
+RUN pip install pytest responses flake8 pylint twine Sphinx sphinx_rtd_theme --no-cache-dir
 
 WORKDIR /src

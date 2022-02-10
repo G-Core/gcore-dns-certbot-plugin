@@ -12,9 +12,6 @@ logger = logging.getLogger(__name__)
 class GCoreClientException(Exception):
     """G-Core DNS API client exception."""
 
-    def __init__(self, r):
-        super().__init__(r.text)
-
 
 class GCoreClient:
     """G-Core DNS API client."""
@@ -55,7 +52,7 @@ class GCoreClient:
             logger.error(
                 'Something went wrong. %r has been sent to %r: %s', data, url, responce.text,
             )
-            raise GCoreClientException(responce)
+            raise GCoreClientException(responce.text)
         responce.raise_for_status()
         return responce
 

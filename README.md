@@ -91,8 +91,14 @@ docker-compose run --rm --service-ports dev bash
 pip install -e .
 touch ./gcore.ini # add g-core dns api credentials
 
-# check pylint
+# pylint
 pylint --rcfile=.pylintrc ./certbot_dns_gcore/
+
+# flake8
+flake8 --config setup.cfg certbot_dns_gcore
+
+# pytest
+pytest .
 
 certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini -d 'example.com'
 ```

@@ -132,4 +132,4 @@ class _GCoreClient:
     @classmethod
     def _data_for_txt(cls, _ttl, _content):
         """Preparing data for TXT record."""
-        return {"resource_records": [{"content": [_content], "enabled": True}], "ttl": _ttl}
+        return {'resource_records': [{'content': [_content], 'enabled': True}], 'ttl': _ttl}
