@@ -107,6 +107,5 @@ Renew and check docs in docker
 ```bash
 docker-compose run --rm --service-ports dev bash
 cd ./docs
-make html
-cat ./_build/html/index.html
+sphinx-build -W -b html -d _build/doctrees . _build/html
 ```
