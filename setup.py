@@ -13,11 +13,16 @@ docs_extras = [
     'sphinx_rtd_theme',
 ]
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name='certbot-dns-gcore',
     version=version,
     description="G-Core DNS Authenticator plugin for Certbot",
-    url='https://github.com/G-Core/terraform-provider-gcorelabs',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/G-Core/gcore-dns-certbot-plugin',
     author="G-Core Labs",
     author_email='support@gcorelabs.com',
     license='Apache License 2.0',

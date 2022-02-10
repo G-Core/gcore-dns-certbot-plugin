@@ -5,6 +5,6 @@ ENV PYTHONUNBUFFERED 1
 RUN apk --update --no-cache add bash libffi-dev build-base \
     && rm -rf /var/cache/apk/*
 
-RUN pip install pylint Sphinx sphinx_rtd_theme --no-cache-dir
+RUN pip install pylint twine Sphinx sphinx_rtd_theme --no-cache-dir
 
 WORKDIR /src
