@@ -13,7 +13,7 @@ docs_extras = [
     'sphinx_rtd_theme',
 ]
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
@@ -26,7 +26,7 @@ setup(
     author="G-Core Labs",
     author_email='support@gcorelabs.com',
     license='Apache License 2.0',
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     packages=find_packages(),
     include_package_data=True,
     install_requires=install_requires,
