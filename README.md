@@ -3,6 +3,10 @@ completing a `dns-01` challenge (`acme.challenges.DNS01`) by
 creating, and subsequently removing, TXT records using the G-Core DNS
 API.
 
+Documentation
+===============
+For full documentation, including installation, examples, changelog please see [readthedocs page](https://gcore-dns-certbot-plugin.readthedocs.io/en/latest/).
+
 Install
 ===============
 
