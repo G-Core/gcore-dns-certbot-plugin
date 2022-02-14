@@ -1,0 +1,42 @@
+name: CI
+
+on: push
+
+jobs:
+  tests:
+    name: Run test suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Check pylint
+        run: pylint --rcfile=.pylintrc certbot_dns_gcore
+
+      - name: Check  flake8
+        run: flake8 --config setup.cfg certbot_dns_gcore
+
+      - name: Check pytest
+        run: pytest .
+
+      - name: Check build
+        run: |
+          python setup.py sdist bdist_wheel
+          twine check dist/*
+
+      - name: Check docs
+      - uses: ammaraskar/sphinx-action@master
+          with:
+            docs-folder: "docs/"
+            build-command: "sphinx-build -b html . _build/html"

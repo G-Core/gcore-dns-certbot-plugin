@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED 1
 RUN apk --update --no-cache add bash libffi-dev build-base \
     && rm -rf /var/cache/apk/*
 
-RUN pip install pytest responses flake8 pylint twine Sphinx sphinx_rtd_theme --no-cache-dir
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /src

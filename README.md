@@ -89,27 +89,16 @@ certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini -
 For developers
 ========
 
-How to develop plugin in docker
+How to run\develop plugin in docker
 ```bash
 docker-compose run --rm --service-ports dev bash
+# commands below run inside docker container
 pip install -e .
 touch ./gcore.ini # add g-core dns api credentials
-
-# pylint
-pylint --rcfile=.pylintrc ./certbot_dns_gcore/
-
-# flake8
-flake8 --config setup.cfg certbot_dns_gcore
-
-# pytest
-pytest .
-
 certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini -d 'example.com'
 ```
 
-Renew and check docs in docker
-```bash
-docker-compose run --rm --service-ports dev bash
-cd ./docs
-sphinx-build -W -b html -d _build/doctrees . _build/html
-```
+Main docs file here: `certbot_dns_gcore/__init__.py`
+
+How to run tests:
+please see document `.github/workflows/ci.yml`
