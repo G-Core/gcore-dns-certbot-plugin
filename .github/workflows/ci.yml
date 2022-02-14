@@ -37,6 +37,6 @@ jobs:
 
       - name: Check docs
       - uses: ammaraskar/sphinx-action@master
-          with:
-            docs-folder: "docs/"
-            build-command: "sphinx-build -b html . _build/html"
+        with:
+          docs-folder: "docs/"
+          build-command: "sphinx-build -b html . _build/html"
