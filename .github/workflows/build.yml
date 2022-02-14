@@ -14,10 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v1
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.10.2
+          python-version: "3.x"
+          
+      - name: Install dependencies
+          run: pip install -r requirements.txt
 
       - name: Build a binary wheel and a source tarball
         run: python setup.py sdist bdist_wheel
