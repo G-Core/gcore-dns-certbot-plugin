@@ -83,7 +83,7 @@ certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini -
 
 To acquire a certificate for ``example.com``, waiting 60 seconds for DNS propagation
 ```bash
-certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini --dns-gcore-propagation-seconds=60 -d 'studentut24.ru'
+certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini --dns-gcore-propagation-seconds=60 -d 'example.com'
 ```
 
 For developers

@@ -91,5 +91,5 @@ Examples
      --authenticator dns-gcore \\
      --dns-gcore-credentials=./gcore.ini \\
      --dns-gcore-propagation-seconds=60 \\
-     -d 'studentut24.ru'
+     -d 'example.com'
 """
