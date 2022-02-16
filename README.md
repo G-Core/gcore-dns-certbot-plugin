@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/certbot-dns-gcore.svg)](https://badge.fury.io/py/certbot-dns-gcore)
 [![Documentation Status](https://readthedocs.org/projects/gcore-dns-certbot-plugin/badge/?version=latest)](https://gcore-dns-certbot-plugin.readthedocs.io/en/latest/)
-![Tests](https://github.com/G-Core/gcore-dns-certbot-plugin/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/G-Core/gcore-dns-certbot-plugin/actions/workflows/ci.yml/badge.svg)
 ![Build](https://github.com/G-Core/gcore-dns-certbot-plugin/actions/workflows/build.yml/badge.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/G-Core/gcore-dns-certbot-plugin)
 ![Code style: black](https://img.shields.io/github/license/G-Core/gcore-dns-certbot-plugin)
