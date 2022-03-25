@@ -83,14 +83,21 @@ except by addressing the issue (e.g., by using a command like
 
 Examples
 ========
+
 To acquire a certificate for ``example.com``
 ```bash
 certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini -d 'example.com'
 ```
 
-To acquire a certificate for ``example.com``, waiting 60 seconds for DNS propagation
+To acquire a certificate for ``example.com``, waiting 80 seconds (recommended) for DNS propagation
 ```bash
-certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini --dns-gcore-propagation-seconds=60 -d 'example.com'
+certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini --dns-gcore-propagation-seconds=80 -d 'example.com'
+```
+
+To acquire a ecdsa backed wildcard certificate for ``*.example.com``, waiting 80 seconds (recommended) for DNS propagation in isolated directory (e.g. as non-root user)
+```bash
+mkdir certbot && cd certbot
+certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini --dns-gcore-propagation-seconds=80 -d '*.example.com' --key-type ecdsa --logs-dir=. --config-dir=. --work-dir=.
 ```
 
 For developers
