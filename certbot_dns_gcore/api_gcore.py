@@ -17,7 +17,7 @@ class GCoreClient:
     """G-Core DNS API client."""
 
     _root_zones = 'zones'
-    _dns_api_url = 'https://dnsapi.gcorelabs.com/v2/'
+    _dns_api_url = 'https://api.gcorelabs.com/dns/v2/'
     _auth_url = 'https://api.gcdn.co/'
 
     def __init__(self, token=None, login=None, password=None):
