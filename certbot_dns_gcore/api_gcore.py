@@ -50,7 +50,11 @@ class GCoreClient:
             http.HTTPStatus.CONFLICT,
         ):
             logger.error(
-                'Something went wrong. %r has been sent to %r: %s', data, url, responce.text,
+                'Something went wrong. Has been sent a request - method: "%s", data: "%r" to url: "%r": %s',
+                method,
+                data or params,
+                url,
+                responce.text,
             )
             raise GCoreClientException(responce.text)
         responce.raise_for_status()

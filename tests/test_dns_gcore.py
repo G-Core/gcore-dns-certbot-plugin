@@ -17,6 +17,12 @@ def test_gcoreclient_fail(kwargs):
 def test_add_txt_record_success(kwargs, record_payload):
     # INIT
     responses.add(
+        responses.GET,
+        f'{GCoreClient._dns_api_url}zones/{record_payload["domain"]}',
+        json={'name': record_payload["domain"]},
+        status=200
+    )
+    responses.add(
         responses.POST,
         f'{GCoreClient._auth_url}auth/jwt/login',
         json={'access': 'token'},
@@ -38,6 +44,12 @@ def test_del_txt_record_success(kwargs, record_payload):
     # INIT
     record_payload.pop('record_content')
     record_payload.pop('record_ttl')
+    responses.add(
+        responses.GET,
+        f'{GCoreClient._dns_api_url}zones/{record_payload["domain"]}',
+        json={'name': record_payload["domain"]},
+        status=200
+    )
     responses.add(
         responses.POST,
         f'{GCoreClient._auth_url}auth/jwt/login',
