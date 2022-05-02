@@ -129,8 +129,8 @@ class _GCoreClient:
         """
         try:
             domain = self._find_zone_name(domain)
-        except errors.PluginError as e:
-            logger.debug('Encountered error finding zone_id during deletion: %s', e)
+        except errors.PluginError as err:
+            logger.debug('Encountered error finding zone_id during deletion: %s', err)
             return
         self.gcore.record_delete(domain, record_name, self.record_type)
         logger.debug('Successfully deleted TXT record.')
