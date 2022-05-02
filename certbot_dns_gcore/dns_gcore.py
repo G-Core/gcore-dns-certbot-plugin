@@ -110,6 +110,7 @@ class _GCoreClient:
         :param int record_ttl: The record TTL (number of seconds that the record may be cached).
         :raises certbot.errors.PluginError: if an error occurs communicating with the G-Core DNS API
         """
+        domain = self._find_zone_name(domain=domain)
         self.gcore.record_create(
             domain,
             record_name,
@@ -126,6 +127,11 @@ class _GCoreClient:
         :param str record_name: The record name (typically beginning with '_acme-challenge.').
         :param str record_content: The record content (typically the challenge validation).
         """
+        try:
+            domain = self._find_zone_name(domain)
+        except errors.PluginError as err:
+            logger.debug('Encountered error finding zone_id during deletion: %s', err)
+            return
         self.gcore.record_delete(domain, record_name, self.record_type)
         logger.debug('Successfully deleted TXT record.')
 
@@ -133,3 +139,34 @@ class _GCoreClient:
     def _data_for_txt(cls, _ttl, _content):
         """Preparing data for TXT record."""
         return {'resource_records': [{'content': [_content], 'enabled': True}], 'ttl': _ttl}
+
+    def _find_zone_name(self, domain: str) -> str:
+        """
+        Find the zone_name for a given domain.
+
+        Args:
+            domain: The domain for which to find the zone_id.
+
+        Returns:
+            The zone_id, if found.
+        """
+        zone_name_guesses = dns_common.base_domain_name_guesses(domain)
+
+        for zone_name in zone_name_guesses:
+            try:
+                zone = self.gcore.zone(zone_name=zone_name)
+            except api_gcore.GCoreClientException:
+
+                continue
+
+            if zone:
+                zone_name = zone['name']
+                logger.debug('Found zone_name of %s for %s using name %s', zone_name, domain, zone_name)
+                return zone_name
+        raise errors.PluginError(
+            'Unable to determine zone_name for {0} using zone names: '
+            '{1}. Please confirm that the domain name has been '
+            'entered correctly and is already associated with the '
+            'supplied G-Core account.'
+            .format(domain, zone_name_guesses)
+        )
