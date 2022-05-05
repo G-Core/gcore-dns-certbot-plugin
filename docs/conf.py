@@ -12,8 +12,8 @@
 #
 import os
 import sys
-from certbot_dns_gcore.__version__ import VERSION
 sys.path.insert(0, os.path.abspath('..'))
+from certbot_dns_gcore.__version__ import VERSION
 
 
 # -- Project information -----------------------------------------------------
