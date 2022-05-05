@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+from certbot_dns_gcore.__version__ import VERSION
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +23,7 @@ copyright = '2022, G-Core'
 author = 'G-Core'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.3'
+release = VERSION
 
 
 # -- General configuration ---------------------------------------------------

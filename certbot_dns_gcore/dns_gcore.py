@@ -10,6 +10,7 @@ from certbot.plugins import dns_common
 from certbot.plugins.dns_common import CredentialsConfiguration
 
 from . import api_gcore
+from .api_gcore import GCoreConflictException
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,8 @@ class Authenticator(dns_common.DNSAuthenticator):
         super().__init__(*args, **kwargs)
         self.token = self.email = self.password = None
         self.credentials: Optional[CredentialsConfiguration] = None
+        self.auth_url = None
+        self.dns_api_url = None
 
     @classmethod
     def add_parser_arguments(
@@ -38,13 +41,15 @@ class Authenticator(dns_common.DNSAuthenticator):
         add('credentials', help='G-Core credentials INI file.')
 
     def more_info(self) -> str:
-        return 'This plugin configures a DNS TXT record to respond to a dns-01 challenge using ' + \
-               'the G-Core API.'
+        return 'This plugin configures a DNS TXT record to respond to a dns-01 challenge using the G-Core API.'
 
     def _validate_credentials(self, credentials: CredentialsConfiguration) -> None:
         self.token = credentials.conf('apitoken')
         self.email = credentials.conf('email')
         self.password = credentials.conf('password')
+        self.auth_url = credentials.conf('auth_url')
+        self.dns_api_url = credentials.conf('api_url')
+
         if self.token:
             if self.email or self.password:
                 raise errors.PluginError('{}: dns_gcore_email and dns_gcore_password are '
@@ -84,8 +89,10 @@ class Authenticator(dns_common.DNSAuthenticator):
         if not self.credentials:  # pragma: no cover
             raise errors.Error("Plugin has not been prepared.")
         if self.token:
-            return _GCoreClient(token=self.token)
-        return _GCoreClient(login=self.email, password=self.password)
+            return _GCoreClient(token=self.token, dns_api_url=self.dns_api_url, auth_url=self.auth_url)
+        return _GCoreClient(
+            login=self.email, password=self.password, dns_api_url=self.dns_api_url, auth_url=self.auth_url
+        )
 
 
 class _GCoreClient:
@@ -111,12 +118,20 @@ class _GCoreClient:
         :raises certbot.errors.PluginError: if an error occurs communicating with the G-Core DNS API
         """
         domain = self._find_zone_name(domain=domain)
-        self.gcore.record_create(
-            domain,
-            record_name,
-            self.record_type,
-            data=self._data_for_txt(record_ttl, record_content),
-        )
+        try:
+            self.gcore.record_create(
+                domain, record_name, self.record_type, data=self._data_for_txt(record_ttl, [record_content]),
+            )
+        except GCoreConflictException:
+            logger.debug('Record already present on zone. Try to update record content')
+            exist_record_content = self.gcore.record_content(domain, record_name, self.record_type)
+            exist_record_content.append(record_content)
+            self.gcore.record_update(
+                domain,
+                record_name,
+                self.record_type,
+                data=self._data_for_txt(record_ttl, exist_record_content),
+            )
         logger.debug('Successfully added TXT record with record_name: %s', record_name)
 
     def del_txt_record(self, domain: str, record_name: str) -> None:
@@ -129,16 +144,17 @@ class _GCoreClient:
         """
         try:
             domain = self._find_zone_name(domain)
-        except errors.PluginError as err:
+            self.gcore.record_get(domain, record_name, self.record_type)
+        except (api_gcore.GCoreNotFoundException, api_gcore.GCoreConflictException) as err:
             logger.debug('Encountered error finding zone_id during deletion: %s', err)
             return
         self.gcore.record_delete(domain, record_name, self.record_type)
         logger.debug('Successfully deleted TXT record.')
 
     @classmethod
-    def _data_for_txt(cls, _ttl, _content):
+    def _data_for_txt(cls, ttl, contents: list) -> dict:
         """Preparing data for TXT record."""
-        return {'resource_records': [{'content': [_content], 'enabled': True}], 'ttl': _ttl}
+        return {'resource_records': [{'content': [content], 'enabled': True} for content in contents], 'ttl': ttl}
 
     def _find_zone_name(self, domain: str) -> str:
         """
@@ -150,23 +166,8 @@ class _GCoreClient:
         Returns:
             The zone_id, if found.
         """
-        zone_name_guesses = dns_common.base_domain_name_guesses(domain)
-
-        for zone_name in zone_name_guesses:
-            try:
-                zone = self.gcore.zone(zone_name=zone_name)
-            except api_gcore.GCoreClientException:
-
-                continue
-
-            if zone:
-                zone_name = zone['name']
-                logger.debug('Found zone_name of %s for %s using name %s', zone_name, domain, zone_name)
-                return zone_name
-        raise errors.PluginError(
-            'Unable to determine zone_name for {0} using zone names: '
-            '{1}. Please confirm that the domain name has been '
-            'entered correctly and is already associated with the '
-            'supplied G-Core account.'
-            .format(domain, zone_name_guesses)
-        )
+        zone_name_guess = '.'.join(domain.split('.')[-2:])
+        zone = self.gcore.zone(zone_name=zone_name_guess)
+        zone_name = zone['name']
+        logger.debug('Found zone_name: %s for domain: %s', zone_name, domain)
+        return zone['name']
