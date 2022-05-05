@@ -2,15 +2,25 @@
 
 import http
 import logging
+import typing
 import urllib.parse
 
+import requests
 from requests import Session
 
 logger = logging.getLogger(__name__)
 
 
-class GCoreClientException(Exception):
+class GCoreException(Exception):
     """G-Core DNS API client exception."""
+
+
+class GCoreConflictException(Exception):
+    """G-Core DNS API conflict exception."""
+
+
+class GCoreNotFoundException(Exception):
+    """G-Core DNS API conflict exception."""
 
 
 class GCoreClient:
@@ -19,8 +29,10 @@ class GCoreClient:
     _root_zones = 'zones'
     _dns_api_url = 'https://api.gcorelabs.com/dns/v2/'
     _auth_url = 'https://api.gcdn.co/'
+    _timeout = 10.0
+    _error_format = 'Error. %s: %r, data: "%r", response: %s'
 
-    def __init__(self, token=None, login=None, password=None):
+    def __init__(self, token=None, login=None, password=None, dns_api_url=None, auth_url=None):
         self._session = Session()
         if token is not None:
             self._session.headers.update({'Authorization': f'APIKey {token}'})
@@ -29,6 +41,10 @@ class GCoreClient:
             self._session.headers.update({'Authorization': f'Bearer {token}'})
         else:
             raise ValueError('either token or login & password must be set')
+        if dns_api_url:
+            self._dns_api_url = dns_api_url
+        if auth_url:
+            self._auth_url = auth_url
 
     def _auth(self, url, login, password):
         """Get auth token."""
@@ -40,66 +56,66 @@ class GCoreClient:
         responce.raise_for_status()
         return responce.json()['access']
 
-    def _request(self, method, url, params=None, data=None):
+    def _request(self, method: str, url: str, params=None, data=None) -> requests.Response or requests.RequestException:
         """Requests handler."""
-        responce = self._session.request(method, url, params=params, json=data, timeout=30.0)
-        if responce.status_code in (
-            http.HTTPStatus.BAD_REQUEST,
-            http.HTTPStatus.NOT_FOUND,
-            http.HTTPStatus.INTERNAL_SERVER_ERROR,
-            http.HTTPStatus.CONFLICT,
+        responce = self._session.request(method, url, params=params, json=data, timeout=self._timeout)
+        if responce.status_code in (  # pylint: disable=R1720
+                http.HTTPStatus.BAD_REQUEST, http.HTTPStatus.INTERNAL_SERVER_ERROR,
         ):
-            logger.error(
-                'Something went wrong. Has been sent a request - method: "%s", data: "%r" to url: "%r": %s',
-                method,
-                data or params,
-                url,
-                responce.text,
-            )
-            raise GCoreClientException(responce.text)
+            logger.error(self._error_format, method, url, data or params, responce.text)
+            raise GCoreException(responce.text)
+        elif responce.status_code == http.HTTPStatus.CONFLICT:
+            raise GCoreConflictException(self._error_format % (method, url, data or params, responce.text))
+        elif responce.status_code == http.HTTPStatus.NOT_FOUND:
+            raise GCoreNotFoundException(self._error_format % (method, url, data or params, responce.text))
         responce.raise_for_status()
         return responce
 
-    def zone(self, zone_name):
+    def zone(self, zone_name: str) -> dict:
         """Get DNS record."""
-        return self._request(
-            'GET', self._build_url(self._dns_api_url, self._root_zones, zone_name)
-        ).json()
+        return self._request('GET', self._build_url(self._dns_api_url, self._root_zones, zone_name)).json()
 
-    def zone_create(self, zone_name):
+    def zone_create(self, zone_name: str) -> dict:
         """Create DNS zone."""
         return self._request(
-            'POST',
-            self._build_url(self._dns_api_url, self._root_zones),
-            data={'name': zone_name},
+            'POST', self._build_url(self._dns_api_url, self._root_zones), data={'name': zone_name},
         ).json()
 
-    def zone_records(self, zone_name):
+    def zone_records(self, zone_name: str) -> list:
         """List DNS records from zone."""
         url = self._build_url(self._dns_api_url, self._root_zones, zone_name, 'rrsets')
         rrsets = self._request('GET', url, params={'all': 'true'}).json()
         records = rrsets['rrsets']
         return records
 
-    def record_create(self, zone_name, rrset_name, type_, data):
+    def record_create(self, zone_name: str, rrset_name: str, type_: str, data: dict) -> None:
         """Create DNS record in zone."""
         self._request('POST', self._rrset_url(zone_name, rrset_name, type_), data=data)
 
-    def record_update(self, zone_name, rrset_name, type_, data):
+    def record_update(self, zone_name: str, rrset_name: str, type_: str, data: dict) -> None:
         """Update DNS record in zone."""
         self._request('PUT', self._rrset_url(zone_name, rrset_name, type_), data=data)
 
-    def record_delete(self, zone_name, rrset_name, type_):
+    def record_get(self, zone_name: str, rrset_name: str, type_: str) -> dict:
+        """Get DNS record in zone."""
+        return self._request('GET', self._rrset_url(zone_name, rrset_name, type_)).json()
+
+    def record_content(self, zone_name: str, rrset_name: str, type_: str) -> typing.List[str]:
+        """Get record content."""
+        response = self.record_get(zone_name, rrset_name, type_)
+        return [record['content'][0] for record in response['resource_records']]
+
+    def record_delete(self, zone_name: str, rrset_name: str, type_: str) -> None:
         """Delete DNS record in zome."""
         self._request('DELETE', self._rrset_url(zone_name, rrset_name, type_))
 
-    def _rrset_url(self, zone_name, rrset_name, type_):
+    def _rrset_url(self, zone_name: str, rrset_name: str, type_: str) -> str:
         """Build full DNS URL for request."""
         return self._build_url(self._dns_api_url, self._root_zones, zone_name, rrset_name, type_)
 
     @staticmethod
-    def _build_url(base, *items):
-        for i in items:
+    def _build_url(base: str, *items: typing.Iterable) -> typing.AnyStr:
+        for item in items:
             base = base.strip('/') + '/'
-            base = urllib.parse.urljoin(base, i)
+            base = urllib.parse.urljoin(base, item)
         return base

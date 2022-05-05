@@ -71,6 +71,15 @@ file. This warning will be emitted each time Certbot uses the credentials file,
 including for renewal, and cannot be silenced except by addressing the issue
 (e.g., by using a command like ``chmod 600`` to restrict access to the file).
 
+Also you can specify the G-Core ``auth`` and ``dns`` urls.
+
+.. code-block:: ini
+   :name: gcore_token.ini
+   :caption: Example `gcore.ini` file using alternative `auth` and `dns` urls.
+
+    # G-Core API credentials used by Certbot
+    dns_gcore_auth_url = https://auth.example.com
+    dns_gcore_api_url = https://dns_api.example.com
 
 Examples
 --------

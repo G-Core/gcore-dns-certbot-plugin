@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
+from certbot_dns_gcore.__version__ import VERSION
 
-version = '0.1.3'
 
 install_requires = [
     'certbot>=1.23.0',
@@ -18,7 +18,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='certbot-dns-gcore',
-    version=version,
+    version=VERSION,
     description="G-Core DNS Authenticator plugin for Certbot",
     long_description=long_description,
     long_description_content_type="text/markdown",

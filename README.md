@@ -81,6 +81,14 @@ uses the credentials file, including for renewal, and cannot be silenced
 except by addressing the issue (e.g., by using a command like
 `chmod 600` to restrict access to the file).
 
+Also you can specify the `auth` and `dns` urls.
+Example `gcore.ini` file using alternative `auth` and `dns` urls.
+```ini
+# G-Core API urls used by Certbot
+dns_gcore_auth_url = https://auth.example.com/
+dns_gcore_api_url = https://dns_api.example.com/
+```
+
 Examples
 ========
 
@@ -113,6 +121,8 @@ certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini -
 ```
 
 Main docs file here: `certbot_dns_gcore/__init__.py`
+Build html docs files: `cd ./docs && sphinx-build -b html . _build/html`
+Main plugin version here: `certbot_dns_gcore/__version__.py`
 
 How to run tests:
 please see document `.github/workflows/ci.yml`
