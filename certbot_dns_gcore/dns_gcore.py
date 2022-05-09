@@ -30,6 +30,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         super().__init__(*args, **kwargs)
         self.token = self.email = self.password = None
         self.credentials: Optional[CredentialsConfiguration] = None
+        self.api_url = None
         self.auth_url = None
         self.dns_api_url = None
 
@@ -48,7 +49,8 @@ class Authenticator(dns_common.DNSAuthenticator):
         self.email = credentials.conf('email')
         self.password = credentials.conf('password')
         self.auth_url = credentials.conf('auth_url')
-        self.dns_api_url = credentials.conf('api_url')
+        self.dns_api_url = credentials.conf('dns_api_url')
+        self.api_url = credentials.conf('api_url')
 
         if self.token:
             if self.email or self.password:
@@ -89,9 +91,18 @@ class Authenticator(dns_common.DNSAuthenticator):
         if not self.credentials:  # pragma: no cover
             raise errors.Error("Plugin has not been prepared.")
         if self.token:
-            return _GCoreClient(token=self.token, dns_api_url=self.dns_api_url, auth_url=self.auth_url)
+            return _GCoreClient(
+                token=self.token,
+                api_url=self.api_url,
+                dns_api_url=self.dns_api_url,
+                auth_url=self.auth_url
+            )
         return _GCoreClient(
-            login=self.email, password=self.password, dns_api_url=self.dns_api_url, auth_url=self.auth_url
+            login=self.email,
+            password=self.password,
+            api_url=self.api_url,
+            dns_api_url=self.dns_api_url,
+            auth_url=self.auth_url
         )
 
 
