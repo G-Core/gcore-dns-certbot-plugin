@@ -2,6 +2,7 @@
 
 import http
 import logging
+import re
 import typing
 import urllib.parse
 
@@ -26,13 +27,13 @@ class GCoreNotFoundException(Exception):
 class GCoreClient:
     """G-Core DNS API client."""
 
-    _root_zones = 'zones'
-    _dns_api_url = 'https://api.gcorelabs.com/dns/v2/'
-    _auth_url = 'https://api.gcdn.co/'
+    _root_zones = 'v2/zones'
+    _dns_api_url = 'https://api.gcorelabs.com/dns'
+    _auth_url = 'https://api.gcorelabs.com'
     _timeout = 10.0
     _error_format = 'Error. %s: %r, data: "%r", response: %s'
 
-    def __init__(self, token=None, login=None, password=None, dns_api_url=None, auth_url=None):
+    def __init__(self, token=None, login=None, password=None, api_url=None, dns_api_url=None, auth_url=None):
         self._session = Session()
         if token is not None:
             self._session.headers.update({'Authorization': f'APIKey {token}'})
@@ -41,6 +42,10 @@ class GCoreClient:
             self._session.headers.update({'Authorization': f'Bearer {token}'})
         else:
             raise ValueError('either token or login & password must be set')
+        if api_url:
+            self._auth_url = api_url
+            self._dns_api_url = self._build_url(api_url, '/dns')
+            # more specific parameters should win thus go latter
         if dns_api_url:
             self._dns_api_url = dns_api_url
         if auth_url:
@@ -115,6 +120,8 @@ class GCoreClient:
 
     @staticmethod
     def _build_url(base: str, *items: typing.Iterable) -> typing.AnyStr:
+        if not re.match(r'^https?://', base):
+            raise GCoreException('Error schema url: please, check schema in url: "%s"' % base)
         for item in items:
             base = base.strip('/') + '/'
             base = urllib.parse.urljoin(base, item)
