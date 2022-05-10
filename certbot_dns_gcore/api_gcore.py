@@ -2,6 +2,7 @@
 
 import http
 import logging
+import re
 import typing
 import urllib.parse
 
@@ -119,6 +120,8 @@ class GCoreClient:
 
     @staticmethod
     def _build_url(base: str, *items: typing.Iterable) -> typing.AnyStr:
+        if not re.match(r'^https?://', base):
+            raise GCoreException('Error schema url: please, check schema in url: "%s"' % base)
         for item in items:
             base = base.strip('/') + '/'
             base = urllib.parse.urljoin(base, item)
