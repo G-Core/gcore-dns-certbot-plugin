@@ -38,7 +38,7 @@ Credentials
 
 Use of this plugin requires a configuration file containing G-Core DNS
 API credentials. You can use:
-* G-Core API Token, obtained from your [profile panel](https://accounts.gcorelabs.com/profile/api-tokens) 
+* G-Core API Token, obtained from your [profile panel](https://accounts.gcorelabs.com/profile/api-tokens)
 or
 * use G-Core Authentication credentials (email and password) for [login](https://auth.gcorelabs.com/login/signin) page.
 
@@ -81,12 +81,17 @@ uses the credentials file, including for renewal, and cannot be silenced
 except by addressing the issue (e.g., by using a command like
 `chmod 600` to restrict access to the file).
 
-Also you can specify the `auth` and `dns` urls.
-Example `gcore.ini` file using alternative `auth` and `dns` urls.
+Also you can override the default `api_url` or achieve even more flexibility
+by specifying `auth` and `dns_api` urls separately.
+Example `gcore.ini` file:
 ```ini
 # G-Core API urls used by Certbot
-dns_gcore_auth_url = https://auth.example.com/
-dns_gcore_api_url = https://dns_api.example.com/
+dns_gcore_api_url = https://api.reseller.com
+# implies that authapi available as / and dnsapi as /dns
+
+# or
+dns_gcore_auth_url = https://authapi.example.com
+dns_gcore_dns_api_url = https://dnsapi.example.com
 ```
 
 Examples
