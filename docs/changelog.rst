@@ -2,6 +2,14 @@
 Changelog
 =================
 
+0.1.6
+-----------------
+    * Fix error when two or more records have same content
+
+0.1.5
+-----------------
+    * Added api_url configuration parameter
+
 0.1.4
 -----------------
     * Add wildcard support
