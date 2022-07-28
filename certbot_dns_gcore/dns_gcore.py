@@ -136,7 +136,8 @@ class _GCoreClient:
         except GCoreConflictException:
             logger.debug('Record already present on zone. Try to update record content')
             exist_record_content = self.gcore.record_content(domain, record_name, self.record_type)
-            exist_record_content.append(record_content)
+            if record_content not in exist_record_content:
+                exist_record_content.append(record_content)
             self.gcore.record_update(
                 domain,
                 record_name,

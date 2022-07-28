@@ -87,10 +87,10 @@ Example `gcore.ini` file:
 ```ini
 # G-Core API urls used by Certbot
 dns_gcore_api_url = https://api.reseller.com
-# implies that authapi available as / and dnsapi as /dns
+# implies that authapi available as /iam and dnsapi as /dns
 
 # or
-dns_gcore_auth_url = https://authapi.example.com
+dns_gcore_auth_url = https://api.example.org/iam
 dns_gcore_dns_api_url = https://dnsapi.example.com
 ```
 

@@ -1,5 +1,6 @@
 import pytest
 import responses
+import json
 
 from certbot_dns_gcore.api_gcore import GCoreClient
 
@@ -12,6 +13,28 @@ def record_payload():
         'record_content': '123456790',
         'record_ttl': 300
     }
+
+
+@pytest.fixture
+def rrset_exists_two_records():
+    return '''\
+{
+    "resource_records": [
+        {
+            "content": [
+                "coexisting content"
+            ],
+            "enabled": true
+        },
+        {
+            "content": [
+                "123456790"
+            ],
+            "enabled": true
+        }
+    ],
+    "ttl": 300
+}'''
 
 
 def txt_data_expected1():
@@ -70,5 +93,35 @@ def mock_post_record(record_payload):
     responses.add(
         responses.POST,
         f'{GCoreClient._dns_api_url}/{GCoreClient._root_zones}/{record_payload["domain"]}/{record_payload["record_name"]}/TXT',
-        json={}, status=200
+        json={},
+        status=200
     )
+
+
+@pytest.fixture
+def mock_dns_api(record_payload, rrset_exists_two_records):
+    responses.add(
+        responses.GET,
+        f'{GCoreClient._dns_api_url}/{GCoreClient._root_zones}/{record_payload["domain"]}',
+        json={'name': record_payload["domain"]},
+        status=200
+    )
+    responses.add(
+        responses.POST,
+        f'{GCoreClient._dns_api_url}/{GCoreClient._root_zones}/{record_payload["domain"]}/{record_payload["record_name"]}/TXT',
+        json={},
+        status=409
+    )
+    responses.add(
+        responses.GET,
+        f'{GCoreClient._dns_api_url}/{GCoreClient._root_zones}/{record_payload["domain"]}/{record_payload["record_name"]}/TXT',
+        json=json.loads(rrset_exists_two_records),
+        status=200
+    )
+    responses.add(
+        responses.PUT,
+        f'{GCoreClient._dns_api_url}/{GCoreClient._root_zones}/{record_payload["domain"]}/{record_payload["record_name"]}/TXT',
+        json={},
+        status=200
+    )
+    yield responses

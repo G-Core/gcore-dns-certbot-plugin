@@ -29,9 +29,9 @@ class GCoreClient:
 
     _root_zones = 'v2/zones'
     _dns_api_url = 'https://api.gcorelabs.com/dns'
-    _auth_url = 'https://api.gcorelabs.com'
+    _auth_url = 'https://api.gcorelabs.com/iam'
     _timeout = 10.0
-    _error_format = 'Error. %s: %r, data: "%r", response: %s'
+    _error_format = 'Error %s. %s: %r, data: "%r", response: %s'
 
     def __init__(self, token=None, login=None, password=None, api_url=None, dns_api_url=None, auth_url=None):
         self._session = Session()
@@ -43,7 +43,7 @@ class GCoreClient:
         else:
             raise ValueError('either token or login & password must be set')
         if api_url:
-            self._auth_url = api_url
+            self._auth_url = self._build_url(api_url, '/iam')
             self._dns_api_url = self._build_url(api_url, '/dns')
             # more specific parameters should win thus go latter
         if dns_api_url:
@@ -67,12 +67,14 @@ class GCoreClient:
         if responce.status_code in (  # pylint: disable=R1720
                 http.HTTPStatus.BAD_REQUEST, http.HTTPStatus.INTERNAL_SERVER_ERROR,
         ):
-            logger.error(self._error_format, method, url, data or params, responce.text)
+            logger.error(self._error_format, responce.status_code, method, url, data or params, responce.text)
             raise GCoreException(responce.text)
         elif responce.status_code == http.HTTPStatus.CONFLICT:
-            raise GCoreConflictException(self._error_format % (method, url, data or params, responce.text))
+            raise GCoreConflictException(self._error_format % (responce.status_code, method, url,
+                                                               data or params, responce.text))
         elif responce.status_code == http.HTTPStatus.NOT_FOUND:
-            raise GCoreNotFoundException(self._error_format % (method, url, data or params, responce.text))
+            raise GCoreNotFoundException(self._error_format % (responce.status_code, method, url,
+                                                               data or params, responce.text))
         responce.raise_for_status()
         return responce
 

@@ -1,3 +1,4 @@
+import json
 import pytest
 import responses
 
@@ -17,6 +18,20 @@ def test_gcoreclient_fail(kwargs):
 def test_add_txt_record_success(kwargs, record_payload, mock_auth, mock_get_zone, mock_post_record):
     # act # check
     assert _GCoreClient(**kwargs).add_txt_record(**record_payload) is None
+
+
+@responses.activate
+def test_update_txt_record_no_duplicates(record_payload, mock_auth, mock_dns_api, rrset_exists_two_records, kwargs={'token': '123'}):
+    _GCoreClient(**kwargs).add_txt_record(**record_payload)
+    # post
+    assert mock_dns_api.calls[1].request.body == b'{"resource_records": [{"content": ["123456790"], "enabled": true}], "ttl": 300}'
+    # post: should get conflict on post
+    assert mock_dns_api.calls[1].response.status_code == 409
+    # get: should get 2 records
+    assert mock_dns_api.calls[2].response._content == b'{"resource_records": [{"content": ["coexisting content"], "enabled": true}, {"content": ["123456790"], "enabled": true}], "ttl": 300}'
+    # put: expect the original payload (no duplicate) in put request not to cause _two or more records have same content_ dnsapi error
+    # could have checked count only, but comparing original content with payload
+    assert sorted(json.loads(mock_dns_api.calls[3].request.body).items()) == sorted(json.loads(rrset_exists_two_records).items())
 
 
 @responses.activate
