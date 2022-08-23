@@ -178,8 +178,19 @@ class _GCoreClient:
         Returns:
             The zone_id, if found.
         """
-        zone_name_guess = '.'.join(domain.split('.')[-2:])
-        zone = self.gcore.zone(zone_name=zone_name_guess)
-        zone_name = zone['name']
-        logger.debug('Found zone_name: %s for domain: %s', zone_name, domain)
-        return zone['name']
+        limit = 100
+        domain_slit_list = '.'.join(domain.split('.')[-2:])
+        zone_name_guesses = dns_common.base_domain_name_guesses(domain)[:-1]
+        zones_raw = self.gcore.zones({'limit': limit, 'name': domain_slit_list})
+        zones = [zona['name'] for zona in zones_raw]
+
+        for zone_name in zone_name_guesses:
+            if zone_name in zones:
+                logger.debug('Found zone_name: %s for domain: %s', zone_name, domain)
+                return zone_name
+        raise errors.PluginError(
+            'Unable to determine zone name for {0} using zone names: '
+            '{1}. Please confirm that the domain name has been '
+            'entered correctly and is already associated with the '
+            'supplied G-Core account.'.format(domain, zone_name_guesses)
+        )

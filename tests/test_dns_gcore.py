@@ -15,7 +15,7 @@ def test_gcoreclient_fail(kwargs):
 
 @responses.activate
 @pytest.mark.parametrize('kwargs', ({'token': '123'}, {'login': 'user', 'password': 'test'}))
-def test_add_txt_record_success(kwargs, record_payload, mock_auth, mock_get_zone, mock_post_record):
+def test_add_txt_record_success(kwargs, record_payload, mock_auth, mock_get_zones, mock_post_record):
     # act # check
     assert _GCoreClient(**kwargs).add_txt_record(**record_payload) is None
 
@@ -36,7 +36,7 @@ def test_update_txt_record_no_duplicates(record_payload, mock_auth, mock_dns_api
 
 @responses.activate
 @pytest.mark.parametrize('kwargs', ({'token': '123'}, {'login': 'user', 'password': 'test'}))
-def test_del_txt_record_success(kwargs, record_payload, mock_auth, mock_get_zone, mock_get_record, mock_del_record):
+def test_del_txt_record_success(kwargs, record_payload, mock_auth, mock_get_zones, mock_get_record, mock_del_record):
     # init
     record_payload.pop('record_content')
     record_payload.pop('record_ttl')
@@ -55,6 +55,6 @@ def test_data_for_txt(in_data, out_data):
 
 @responses.activate
 @pytest.mark.parametrize('subdomain', ('test1.example.com', 'test2.test1.example.com', 'test3.test2.test1.example.com'))
-def test_find_zone_name_success(record_payload, subdomain, mock_auth, mock_get_zone):
+def test_find_zone_name_success(record_payload, subdomain, mock_auth, mock_get_zones):
     # check
     assert _GCoreClient(token='test')._find_zone_name(subdomain) == record_payload['domain']
