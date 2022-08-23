@@ -182,7 +182,7 @@ class _GCoreClient:
         domain_slit_list = '.'.join(domain.split('.')[-2:])
         zone_name_guesses = dns_common.base_domain_name_guesses(domain)[:-1]
         zones_raw = self.gcore.zones({'limit': limit, 'name': domain_slit_list})
-        zones = [zona['name'] for zona in zones_raw]
+        zones = [zona.get('name') for zona in zones_raw]
 
         for zone_name in zone_name_guesses:
             if zone_name in zones:
