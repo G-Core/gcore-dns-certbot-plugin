@@ -122,6 +122,7 @@ docker-compose run --rm --service-ports dev bash
 # commands below run inside docker container
 pip install -e .
 touch ./gcore.ini # add g-core dns api credentials
+pip install certbot
 certbot certonly --authenticator dns-gcore --dns-gcore-credentials=./gcore.ini -d 'example.com'
 ```
 

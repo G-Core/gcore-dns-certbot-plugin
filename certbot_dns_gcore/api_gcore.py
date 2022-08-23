@@ -78,9 +78,13 @@ class GCoreClient:
         responce.raise_for_status()
         return responce
 
-    def zone(self, zone_name: str) -> dict:
-        """Get DNS record."""
-        return self._request('GET', self._build_url(self._dns_api_url, self._root_zones, zone_name)).json()
+    def zone(self, zone_name: str, params: dict = None) -> dict:
+        """Get DNS zone."""
+        return self._request('GET', self._build_url(self._dns_api_url, self._root_zones, zone_name), params).json()
+
+    def zones(self, params: dict = None) -> dict:
+        """Get DNS zones."""
+        return self._request('GET', self._build_url(self._dns_api_url, self._root_zones), params).json()['zones']
 
     def zone_create(self, zone_name: str) -> dict:
         """Create DNS zone."""

@@ -2,6 +2,10 @@
 Changelog
 =================
 
+0.1.7
+-----------------
+    * Fix error for getting certificate with domains above the second level
+
 0.1.6
 -----------------
     * Fix error when two or more records have same content
