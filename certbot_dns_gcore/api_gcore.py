@@ -28,8 +28,8 @@ class GCoreClient:
     """G-Core DNS API client."""
 
     _root_zones = 'v2/zones'
-    _dns_api_url = 'https://api.gcorelabs.com/dns'
-    _auth_url = 'https://api.gcorelabs.com/iam'
+    _dns_api_url = 'https://api.gcore.com/dns'
+    _auth_url = 'https://api.gcore.com/iam'
     _timeout = 10.0
     _error_format = 'Error %s. %s: %r, data: "%r", response: %s'
 
