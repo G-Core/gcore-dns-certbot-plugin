@@ -2,6 +2,10 @@
 Changelog
 =================
 
+0.1.8
+-----------------
+    * Change _dns_api_url and _auth_url
+
 0.1.7
 -----------------
     * Fix error for getting certificate with domains above the second level
