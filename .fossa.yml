@@ -11,9 +11,9 @@ analyze:
         - setup.py
         - requirements.txt
       exclude:
-        - tests/**
-        - docs/**
-        - **/requirements-dev.txt
-        - **/pylint*
-        - **/flake8*
-        - **/certbot*
+        - "tests/**"
+        - "docs/**"
+        - "requirements-dev.txt"
+        - "pylint*"
+        - "flake8*"
+        - "certbot*"
