@@ -26,8 +26,19 @@ jobs:
       - name: Set FOSSA API Key
         run: echo "FOSSA_API_KEY=${{ secrets.FOSSA_PUB_API_KEY }}" >> $GITHUB_ENV
 
+      - name: Install only production dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Run FOSSA Analysis
-        run: fossa analyze
+        run: |
+          fossa analyze --exclude "tests/**" --exclude "**/pylint*" --exclude "**/flake8*" --exclude "**/certbot*" --exclude "docs/**"
+
+      - name: Run FOSSA Test
+        run: fossa test
 
       - name: Run FOSSA Test
         run: fossa test
