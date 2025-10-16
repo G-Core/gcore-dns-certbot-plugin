@@ -1,0 +1,19 @@
+version: 3
+project:
+  name: gcore-dns-certbot-plugin
+  revision: HEAD
+
+analyze:
+  modules:
+    - type: python
+      path: .
+      targets:
+        - setup.py
+        - requirements.txt
+      exclude:
+        - tests/**
+        - docs/**
+        - **/requirements-dev.txt
+        - **/pylint*
+        - **/flake8*
+        - **/certbot*
