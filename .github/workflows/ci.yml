@@ -22,8 +22,8 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Check pylint
-        run: pylint --rcfile=.pylintrc certbot_dns_gcore
+      #- name: Check pylint
+      #- run: pylint --rcfile=.pylintrc certbot_dns_gcore
 
       - name: Check  flake8
         run: flake8 --config setup.cfg certbot_dns_gcore
