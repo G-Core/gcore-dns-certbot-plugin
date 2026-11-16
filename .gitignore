@@ -130,4 +130,12 @@ dmypy.json
 
 .idea/
 .DS_Store
+
+# Credentials: never commit real certbot credential files
 gcore.ini
+*.ini
+!*.example.ini
+*credentials*
+*.secret
+*.pem
+*.key
